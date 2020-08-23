@@ -129,10 +129,6 @@ macro_rules! internal {
     (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)) ()) => {
         $crate::$macro!(($stack, $active) ($($first)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) (@$($code:tt)*)) => {
-        // faking a macro error lol
-        compile_error!("no rules expected token `@`")
-    };
     (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) (<<>>$($code:tt)*)) => {
         $crate::internal!(($stack, $active, $macro) (($($first)*@())$($rest)*) ($($code)*))
     };
