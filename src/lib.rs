@@ -129,44 +129,44 @@ macro_rules! internal {
     (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)) ()) => {
         $crate::$macro!(($stack, $active) ($($first)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) (<<>>$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($first)*@())$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) (<<>>$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($first)*@())$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)($($second:tt)*)$($rest:tt)*) (<>>$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($second)*@($($first)*@()))$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)($($second:tt)*)$($rest:tt)*) (<>>$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($second)*@($($first)*@()))$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) (<>$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($first)*@())$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) (<>$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($first)*@())$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) ($($rest:tt)*) (<<$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (()()$($rest)*) ($($code)*))
+    (($($meta:tt)*) ($($rest:tt)*) (<<$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (()()$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) ($($rest:tt)*) (<$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (()$($rest)*) ($($code)*))
+    (($($meta:tt)*) ($($rest:tt)*) (<$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (()$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)($($second:tt)*)($($third:tt)*)$($rest:tt)*) (>>$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($third)*@($($second)*@($($first)*)))$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)($($second:tt)*)($($third:tt)*)$($rest:tt)*) (>>$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($third)*@($($second)*@($($first)*)))$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)($($second:tt)*)$($rest:tt)*) (>$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($second)*@($($first)*))$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)($($second:tt)*)$($rest:tt)*) (>$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($second)*@($($first)*))$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) (()$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($first)*())$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) (()$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($first)*())$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) ([]$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($first)*[])$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) ([]$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($first)*[])$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) ({}$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($first)*{})$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) ({}$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($first)*{})$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) (($($token:tt)+)$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($first)*(!($($token)+)))$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) (($($token:tt)+)$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($first)*(!($($token)+)))$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) ([$($token:tt)+]$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($first)*[!($($token)+)])$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) ([$($token:tt)+]$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($first)*[!($($token)+)])$($rest)*) ($($code)*))
     };
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)$($rest:tt)*) ({$($token:tt)+}$($code:tt)*)) => {
-        $crate::internal!(($stack, $active, $macro) (($($first)*{!($($token)+)})$($rest)*) ($($code)*))
+    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) ({$($token:tt)+}$($code:tt)*)) => {
+        $crate::internal!(($($meta)*) (($($first)*{!($($token)+)})$($rest)*) ($($code)*))
     };
 }
 /// Stack manipulation with [Brain-Flak](https://esolangs.org/wiki/Brain-Flak). Refer to the [crate document](./index.html) for more info.
