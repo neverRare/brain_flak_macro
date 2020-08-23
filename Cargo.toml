@@ -1,0 +1,7 @@
+[package]
+name = "brain_flak_macro"
+version = "0.1.0"
+authors = ["neverRare"]
+edition = "2018"
+
+[dependencies]
