@@ -1,7 +1,11 @@
 [package]
 name = "brain_flak_macro"
 version = "0.1.0"
+description = "Brain-Flak macro"
+repository = "https://github.com/neverRare/brain_flak_macro"
 authors = ["neverRare"]
+readme = "README.md"
+license = "MIT"
 edition = "2018"
 
 [dependencies]
