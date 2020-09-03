@@ -288,7 +288,10 @@ macro_rules! internal {
         }
     };
 }
-/// Stack manipulation with [Brain-Flak](https://esolangs.org/wiki/Brain-Flak). Refer to the [crate document](./index.html) for more info.
+/// Stack manipulation with [Brain-Flak](https://esolangs.org/wiki/Brain-Flak).
+///
+/// Refer to the [crate document](./index.html) for more information about the
+/// macro.
 #[macro_export]
 macro_rules! brain_flak {
     ($left:expr, $right:expr $(,)? => $($code:tt)*) => {{
