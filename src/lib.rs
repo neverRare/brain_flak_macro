@@ -217,27 +217,6 @@ macro_rules! internal {
             ($($first)*)
         }
     };
-    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) (<<>>$($code:tt)*)) => {
-        $crate::internal! {
-            ($($meta)*)
-            (($($first)*@())$($rest)*)
-            ($($code)*)
-        }
-    };
-    (($($meta:tt)*) (($($first:tt)*)($($second:tt)*)$($rest:tt)*) (<>>$($code:tt)*)) => {
-        $crate::internal! {
-            ($($meta)*)
-            (($($second)*@($($first)*@()))$($rest)*)
-            ($($code)*)
-        }
-    };
-    (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) (<>$($code:tt)*)) => {
-        $crate::internal! {
-            ($($meta)*)
-            (($($first)*@())$($rest)*)
-            ($($code)*)
-        }
-    };
     (($($meta:tt)*) ($($rest:tt)*) (<<$($code:tt)*)) => {
         $crate::internal! {
             ($($meta)*)
