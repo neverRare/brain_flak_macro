@@ -15,8 +15,8 @@
 //! by `=>` then the Brain-Flak code. When provided with input, it will return
 //! `()`, otherwise, the left stack.
 #![warn(missing_docs)]
-// core brain flak macro, @() is the <> instead, as well as !(...) to indicate
-// it still contains <...>
+// core brain flak macro, @() is the <> instead, as well as greedy ! ... to
+// indicate it still contains <...>
 #[doc(hidden)]
 #[macro_export]
 macro_rules! internal_simple_eval {
@@ -107,18 +107,13 @@ macro_rules! internal_simple_eval {
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (!($($first:tt)+)$($code:tt)*)) => {{
-        let num = $crate::internal! {
+    (($stack:ident, $active:ident) (!$($code:tt)*)) => {
+        $crate::internal! {
             ($stack, $active, internal_simple_eval)
             (())
-            ($($first)*)
-        };
-        let rest = $crate::internal_simple_eval! {
-            ($stack, $active)
             ($($code)*)
         };
-        rest + num
-    }};
+    };
 }
 // same as above, but discards the return value as possible.
 // necessary to avoid "unused" warnings.
@@ -201,14 +196,10 @@ macro_rules! internal_simple {
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (!($($first:tt)+)$($code:tt)*)) => {{
+    (($stack:ident, $active:ident) (!$($code:tt)*)) => {{
         $crate::internal! {
             ($stack, $active, internal_simple)
             (())
-            ($($first)*)
-        }
-        $crate::internal_simple! {
-            ($stack, $active)
             ($($code)*)
         }
     }};
@@ -299,21 +290,21 @@ macro_rules! internal {
     (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) (($($token:tt)+)$($code:tt)*)) => {
         $crate::internal! {
             ($($meta)*)
-            (($($first)*(!($($token)+)))$($rest)*)
+            (($($first)*(!$($token)+))$($rest)*)
             ($($code)*)
         }
     };
     (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) ([$($token:tt)+]$($code:tt)*)) => {
         $crate::internal! {
             ($($meta)*)
-            (($($first)*[!($($token)+)])$($rest)*)
+            (($($first)*[!$($token)+])$($rest)*)
             ($($code)*)
         }
     };
     (($($meta:tt)*) (($($first:tt)*)$($rest:tt)*) ({$($token:tt)+}$($code:tt)*)) => {
         $crate::internal! {
             ($($meta)*)
-            (($($first)*{!($($token)+)})$($rest)*)
+            (($($first)*{!$($token)+})$($rest)*)
             ($($code)*)
         }
     };
