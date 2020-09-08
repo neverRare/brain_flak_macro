@@ -316,15 +316,6 @@ macro_rules! brain_flak {
             $($code)*
         };
     }};
-    ($(=>)? $($code:tt)*) => {{
-        use std::vec::Vec;
-        let mut left = Vec::new();
-        let mut right = Vec::new();
-        $crate::brain_flak! { &mut left, &mut right =>
-            $($code)*
-        };
-        left
-    }};
 }
 #[cfg(test)]
 mod test {
