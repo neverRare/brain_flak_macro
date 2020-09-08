@@ -343,7 +343,7 @@ mod test {
     use super::brain_flak;
     #[test]
     fn zero() {
-        let mut vec: Vec<i32> = vec![];
+        let mut vec = vec![];
         brain_flak! { &mut vec =>
             (<()>)
         }
@@ -351,7 +351,7 @@ mod test {
     }
     #[test]
     fn add() {
-        let mut vec: Vec<i32> = vec![10, 20];
+        let mut vec = vec![10, 20];
         brain_flak! { &mut vec =>
             ({}{})
         }
@@ -359,7 +359,7 @@ mod test {
     }
     #[test]
     fn sum() {
-        let mut vec: Vec<i32> = vec![10, 20, 30];
+        let mut vec = vec![10, 20, 30];
         brain_flak! { &mut vec =>
             (([]){[{}]{}([])}{})
         }
@@ -367,7 +367,7 @@ mod test {
     }
     #[test]
     fn subtract() {
-        let mut vec: Vec<i32> = vec![20, 5];
+        let mut vec = vec![20, 5];
         brain_flak! { &mut vec =>
             ([{}]{})
         }
@@ -375,7 +375,7 @@ mod test {
     }
     #[test]
     fn multiply() {
-        let mut vec: Vec<i32> = vec![20, 5];
+        let mut vec = vec![20, 5];
         brain_flak! { &mut vec =>
             ([({}<([({}(<()>))<>](<()>))<>>)<>]){({}[()]<(({})<({}{})>)>)<>}{}{}<>{}{}{}<>
         }
@@ -383,7 +383,7 @@ mod test {
     }
     #[test]
     fn sort() {
-        let mut vec: Vec<i32> = vec![5, 4, 3, 2, 1];
+        let mut vec = vec![5, 4, 3, 2, 1];
         brain_flak! { &mut vec =>
             ([]){({}[()]<(([])<{({}[()]<([([({}<(({})<>)<>>)<><({}<>)>]{}<(())>)
             ](<>)){({}())<>}{}({}<><{}{}>){{}<>(<({}<({}<>)<>>)<>({}<>)>)}{}({}<
