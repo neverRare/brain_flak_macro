@@ -11,9 +11,8 @@
 //! assert_eq!(vec![100], vec);
 //! ```
 //!
-//! You can pass at most 2 mutable reference to vector for it's input. Followed
-//! by `=>` then the Brain-Flak code. When provided with input, it will return
-//! `()`, otherwise, the left stack.
+//! You can pass at most 2 and at least 1 mutable reference to vector for it's
+//! input. Followed by `=>` then the Brain-Flak code.
 #![warn(missing_docs)]
 // core brain flak macro, @() is the <> instead, as well as greedy ! ... to
 // indicate it still contains <...>
@@ -292,6 +291,28 @@ macro_rules! internal {
     };
 }
 /// Stack manipulation with [Brain-Flak](https://esolangs.org/wiki/Brain-Flak).
+///
+/// # Brain-Flak reference table
+///
+/// | Nilad | Return value                 | Action                                  |
+/// | :---: | ---------------------------- | --------------------------------------- |
+/// | `()`  | +1                           | None                                    |
+/// | `[]`  | Height of active stack       | None                                    |
+/// | `{}`  | Value of top of active stack | Pops the top value off the active stack |
+/// | `<>`  | 0                            | Switches the active stack               |
+///
+/// |   Monad   | Return value                                   | Action                                                         |
+/// | :-------: | ---------------------------------------------- | -------------------------------------------------------------- |
+/// | `(`...`)` | Inside value                                   | Pushes the inside value to the top of the active stack         |
+/// | `[`...`]` | Negative inside value                          | None                                                           |
+/// | `{`...`}` | Sum of the inside values across all executions | Executes the inside while the top of the inside stack is not 0 |
+/// | `<`...`>` | 0                                              | None                                                           |
+///
+/// The table above is shamelessly copied from
+/// <https://github.com/DJMcMayhem/Brain-Flak/wiki/Reference>.
+/// More information about Brain-Flak can be found on
+/// [Esolang wiki page](https://esolangs.org/wiki/Brain-Flak), as well as on
+/// its [GitHub repository](https://github.com/DJMcMayhem/Brain-Flak)
 ///
 /// Refer to the [crate document](./index.html) for more information about the
 /// macro.
