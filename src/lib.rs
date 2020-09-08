@@ -32,12 +32,13 @@ macro_rules! internal_simple_eval {
         rest + 1
     }};
     (($stack:ident, $active:ident) ([]$($code:tt)*)) => {{
-        use core::convert::TryInto;
-        let len = $stack[$active].len();
-        let len = len.try_into().unwrap();
+        use std::vec::Vec;
+        let len = Vec::len($stack[$active]);
+        let len = core::convert::TryInto::try_into(len);
+        let len = core::result::Result::unwrap(len);
         // HACK: this is to infer len to have similar type as the element
-        $stack[$active].push(len);
-        $stack[$active].pop();
+        Vec::push($stack[$active], len);
+        Vec::pop($stack[$active]);
         let rest = $crate::internal_simple_eval! {
             ($stack, $active)
             ($($code)*)
@@ -45,7 +46,8 @@ macro_rules! internal_simple_eval {
         rest + len
     }};
     (($stack:ident, $active:ident) ({}$($code:tt)*)) => {{
-        let popped = $stack[$active].pop().unwrap_or_default();
+        let popped = std::vec::Vec::pop($stack[$active]);
+        let popped = core::option::Option::unwrap_or_default(popped);
         let rest = $crate::internal_simple_eval! {
             ($stack, $active)
             ($($code)*)
@@ -64,7 +66,7 @@ macro_rules! internal_simple_eval {
             ($stack, $active)
             ($($first)+)
         };
-        $stack[$active].push(num);
+        std::vec::Vec::push($stack[$active], num);
         let rest = $crate::internal_simple_eval! {
             ($stack, $active)
             ($($code)*)
@@ -84,7 +86,7 @@ macro_rules! internal_simple_eval {
     }};
     (($stack:ident, $active:ident) ({$($first:tt)+}$($code:tt)*)) => {{
         let mut num = 0;
-        while let Some(top) = $stack[$active].last() {
+        while let core::option::Option::Some(top) = <[_]>::last($stack[$active]) {
             if *top == 0 {
                 break;
             } else {
@@ -155,7 +157,7 @@ macro_rules! internal_simple {
             ($stack, $active)
             ($($first)+)
         };
-        $stack[$active].push(num);
+        std::vec::Vec::push($stack[$active], num);
         $crate::internal_simple! {
             ($stack, $active)
             ($($code)*)
@@ -172,8 +174,8 @@ macro_rules! internal_simple {
         }
     }};
     (($stack:ident, $active:ident) ({$($first:tt)+}$($code:tt)*)) => {{
-        while let Some(num) = $stack[$active].last() {
-            if *num == 0 {
+        while let core::option::Option::Some(top) = <[_]>::last($stack[$active]) {
+            if *top == 0 {
                 break;
             } else {
                 $crate::internal_simple! {
@@ -296,6 +298,7 @@ macro_rules! internal {
 #[macro_export]
 macro_rules! brain_flak {
     ($left:expr, $right:expr $(,)? => $($code:tt)*) => {{
+        use std::vec::Vec;
         let left: &mut Vec<_> = $left;
         let right: &mut Vec<_> = $right;
         let stacks = [left, right];
@@ -308,14 +311,15 @@ macro_rules! brain_flak {
         }
     }};
     ($input:expr $(,)? => $($code:tt)*) => {{
-        let mut right = vec![];
+        let mut right = std::vec::Vec::new();
         $crate::brain_flak! { $input, &mut right =>
             $($code)*
         };
     }};
     ($(=>)? $($code:tt)*) => {{
-        let mut left = vec![];
-        let mut right = vec![];
+        use std::vec::Vec;
+        let mut left = Vec::new();
+        let mut right = Vec::new();
         $crate::brain_flak! { &mut left, &mut right =>
             $($code)*
         };
