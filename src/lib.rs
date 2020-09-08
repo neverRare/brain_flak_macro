@@ -32,7 +32,12 @@ macro_rules! internal_simple_eval {
         rest + 1
     }};
     (($stack:ident, $active:ident) ([]$($code:tt)*)) => {{
+        use core::convert::TryInto;
         let len = $stack[$active].len();
+        let len = len.try_into().unwrap();
+        // HACK: this is to infer len to have similar type as the element
+        $stack[$active].push(len);
+        $stack[$active].pop();
         let rest = $crate::internal_simple_eval! {
             ($stack, $active)
             ($($code)*)
@@ -55,12 +60,10 @@ macro_rules! internal_simple_eval {
         }
     }};
     (($stack:ident, $active:ident) (($($first:tt)+)$($code:tt)*)) => {{
-        use core::convert::TryInto;
         let num = $crate::internal_simple_eval! {
             ($stack, $active)
             ($($first)+)
         };
-        let num = num.try_into().unwrap();
         $stack[$active].push(num);
         let rest = $crate::internal_simple_eval! {
             ($stack, $active)
@@ -148,12 +151,10 @@ macro_rules! internal_simple {
         }
     }};
     (($stack:ident, $active:ident) (($($first:tt)+)$($code:tt)*)) => {{
-        use core::convert::TryInto;
         let num = $crate::internal_simple_eval! {
             ($stack, $active)
             ($($first)+)
         };
-        let num = num.try_into().unwrap();
         $stack[$active].push(num);
         $crate::internal_simple! {
             ($stack, $active)
