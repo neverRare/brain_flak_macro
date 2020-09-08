@@ -1,6 +1,6 @@
 [package]
 name = "brain_flak_macro"
-version = "0.1.0"
+version = "0.1.1"
 description = "Brain-Flak macro"
 repository = "https://github.com/neverRare/brain_flak_macro"
 authors = ["neverRare"]
