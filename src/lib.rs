@@ -138,7 +138,7 @@ macro_rules! internal_simple {
         }
     };
     (($stack:ident, $active:ident) ({}$($code:tt)*)) => {{
-        $stack[$active].pop();
+        std::vec::Vec::pop($stack[$active]);
         $crate::internal_simple! {
             ($stack, $active)
             ($($code)*)
