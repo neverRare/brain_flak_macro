@@ -10,9 +10,6 @@
 //! }
 //! assert_eq!(vec![100], vec);
 //! ```
-//!
-//! You can pass at most 2 and at least 1 mutable reference to vector for it's
-//! input. Followed by `=>` then the Brain-Flak code.
 #![warn(missing_docs)]
 #![warn(clippy::all)]
 #![deny(clippy::correctness)]
@@ -22,103 +19,99 @@
 #[doc(hidden)]
 #[macro_export]
 macro_rules! internal_simple_eval {
-    // $stack is an array of 2 stacks
-    // $active is a usize either 0 or 1
-    // these should be an identifier
-    (($stack:ident, $active:ident) ()) => { 0 };
-    (($stack:ident, $active:ident) (()$($code:tt)*)) => {{
+    (($left:ident, $right:ident) ()) => { 0 };
+    (($left:ident, $right:ident) (()$($code:tt)*)) => {{
         let rest = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         };
         rest + 1
     }};
-    (($stack:ident, $active:ident) ([]$($code:tt)*)) => {{
+    (($left:ident, $right:ident) ([]$($code:tt)*)) => {{
         use std::vec::Vec;
-        let len = Vec::len($stack[$active]);
+        let len = Vec::len($left);
         let len = core::convert::TryInto::try_into(len);
         let len = core::result::Result::unwrap(len);
         // HACK: this is to infer len to have similar type as the element
         if false {
-            Vec::push($stack[$active], len);
+            Vec::push($left, len);
         }
         let rest = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         };
         rest + len
     }};
-    (($stack:ident, $active:ident) ({}$($code:tt)*)) => {{
-        let popped = std::vec::Vec::pop($stack[$active]);
+    (($left:ident, $right:ident) ({}$($code:tt)*)) => {{
+        let popped = std::vec::Vec::pop($left);
         let popped = core::option::Option::unwrap_or_default(popped);
         let rest = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         };
         rest + popped
     }};
-    (($stack:ident, $active:ident) (@()$($code:tt)*)) => {{
-        // #[allow(unused_assignments)]
-        $active = 1 - $active;
+    (($left:ident, $right:ident) (@()$($code:tt)*)) => {{
+        core::mem::swap($left, $right);
         $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (($($first:tt)+)$($code:tt)*)) => {{
+    (($left:ident, $right:ident) (($($first:tt)+)$($code:tt)*)) => {{
         let num = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($first)+)
         };
-        std::vec::Vec::push($stack[$active], num);
+        std::vec::Vec::push($left, num);
         let rest = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         };
         rest + num
     }};
-    (($stack:ident, $active:ident) ([$($first:tt)+]$($code:tt)*)) => {{
+    (($left:ident, $right:ident) ([$($first:tt)+]$($code:tt)*)) => {{
         let num = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($first)*)
         };
         let rest = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         };
         rest - num
     }};
-    (($stack:ident, $active:ident) ({$($first:tt)+}$($code:tt)*)) => {{
+    (($left:ident, $right:ident) ({$($first:tt)+}$($code:tt)*)) => {{
         let mut num = 0;
-        while let core::option::Option::Some(top) = <[_]>::last($stack[$active]) {
+        while let core::option::Option::Some(top) = <[_]>::last($left) {
             if *top == 0 {
                 break;
             } else {
                 num += $crate::internal_simple_eval! {
-                    ($stack, $active)
+                    ($left, $right)
                     ($($first)+)
                 };
             }
         }
         let rest = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         };
         rest + num
     }};
-    (($stack:ident, $active:ident) (@($($first:tt)+)$($code:tt)*)) => {{
+    (($left:ident, $right:ident) (@($($first:tt)+)$($code:tt)*)) => {{
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($first)*)
         }
         $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (!$($code:tt)*)) => {
+    (($left:ident, $right:ident) (!$($code:tt)*)) => {
         $crate::internal! {
-            ($stack, $active, internal_simple_eval)
+            ($left, $right, internal_simple_eval)
             (())
             ($($code)*)
         }
@@ -129,83 +122,83 @@ macro_rules! internal_simple_eval {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! internal_simple {
-    (($stack:ident, $active:ident) ()) => { () };
-    (($stack:ident, $active:ident) (()$($code:tt)*)) => {
+    (($left:ident, $right:ident) ()) => { () };
+    (($left:ident, $right:ident) (()$($code:tt)*)) => {
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     };
-    (($stack:ident, $active:ident) ([]$($code:tt)*)) => {
+    (($left:ident, $right:ident) ([]$($code:tt)*)) => {
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     };
-    (($stack:ident, $active:ident) ({}$($code:tt)*)) => {{
-        std::vec::Vec::pop($stack[$active]);
+    (($left:ident, $right:ident) ({}$($code:tt)*)) => {{
+        std::vec::Vec::pop($left);
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (@()$($code:tt)*)) => {{
-        $active = 1 - $active;
+    (($left:ident, $right:ident) (@()$($code:tt)*)) => {{
+        core::mem::swap($left, $right);
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (($($first:tt)+)$($code:tt)*)) => {{
+    (($left:ident, $right:ident) (($($first:tt)+)$($code:tt)*)) => {{
         let num = $crate::internal_simple_eval! {
-            ($stack, $active)
+            ($left, $right)
             ($($first)+)
         };
-        std::vec::Vec::push($stack[$active], num);
+        std::vec::Vec::push($left, num);
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) ([$($first:tt)+]$($code:tt)*)) => {{
+    (($left:ident, $right:ident) ([$($first:tt)+]$($code:tt)*)) => {{
         $crate::internal_simple!{
-            ($stack, $active)
+            ($left, $right)
             ($($first)*)
         }
         $crate::internal_simple!{
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) ({$($first:tt)+}$($code:tt)*)) => {{
-        while let core::option::Option::Some(top) = <[_]>::last($stack[$active]) {
+    (($left:ident, $right:ident) ({$($first:tt)+}$($code:tt)*)) => {{
+        while let core::option::Option::Some(top) = <[_]>::last($left) {
             if *top == 0 {
                 break;
             } else {
                 $crate::internal_simple! {
-                    ($stack, $active)
+                    ($left, $right)
                     ($($first)+)
                 }
             }
         }
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (@($($first:tt)+)$($code:tt)*)) => {{
+    (($left:ident, $right:ident) (@($($first:tt)+)$($code:tt)*)) => {{
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($first)*)
         }
         $crate::internal_simple! {
-            ($stack, $active)
+            ($left, $right)
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (!$($code:tt)*)) => {
+    (($left:ident, $right:ident) (!$($code:tt)*)) => {
         $crate::internal! {
-            ($stack, $active, internal_simple)
+            ($left, $right, internal_simple)
             (())
             ($($code)*)
         }
@@ -213,14 +206,14 @@ macro_rules! internal_simple {
 }
 // another brain flak macro that deals with <...>
 // this internally replaces <...> with @(...) so it can be invoked with
-// internal_simple
+// internal_simple or internal_simple_eval
 // this works with simple token stack to deal with nested <...>
 #[doc(hidden)]
 #[macro_export]
 macro_rules! internal {
-    (($stack:ident, $active:ident, $macro:ident) (($($first:tt)*)) ()) => {
+    (($left:ident, $right:ident, $macro:ident) (($($first:tt)*)) ()) => {
         $crate::$macro! {
-            ($stack, $active)
+            ($left, $right)
             ($($first)*)
         }
     };
@@ -297,6 +290,11 @@ macro_rules! internal {
 }
 /// Stack manipulation with [Brain-Flak](https://esolangs.org/wiki/Brain-Flak).
 ///
+/// This macro accepts a single expression with type `&mut Vec<T>` where `T`
+/// is any numeric types followed by `=>` then the Brain-Flak code. After the
+/// macro invocation, the passed value is then left with the active stack as if
+/// it is the output.
+///
 /// # Brain-Flak reference table
 ///
 /// | Nilad | Return value                 | Action                                  |
@@ -315,32 +313,28 @@ macro_rules! internal {
 ///
 /// The table above is shamelessly copied from
 /// <https://github.com/DJMcMayhem/Brain-Flak/wiki/Reference>.
+///
 /// More information about Brain-Flak can be found on
 /// [Esolang wiki page](https://esolangs.org/wiki/Brain-Flak), as well as on
 /// its [GitHub repository](https://github.com/DJMcMayhem/Brain-Flak)
-///
-/// Refer to the [crate document](./index.html) for more information about the
-/// macro.
 #[macro_export]
 macro_rules! brain_flak {
-    ($left:expr, $right:expr $(,)? => $($code:tt)*) => {{
-        #![allow(unused_assignments)]
+    ($input:expr $(,)? => $($code:tt)*) => {{
         use std::vec::Vec;
-        let left: &mut Vec<_> = $left;
-        let right: &mut Vec<_> = $right;
-        let stacks = [left, right];
-        #[allow(unused_mut)]
-        let mut active = 0;
+        let left: &mut Vec<_> = $input;
+        let mut right = Vec::new();
+        // HACK: this is to infer right is the same type as left
+        if false {
+            let item = Vec::pop(&mut right);
+            let item = core::option::Option::unwrap(item);
+            Vec::push(left, item);
+        }
+        #[allow(unused)]
+        let right = &mut right;
         $crate::internal! {
-            (stacks, active, internal_simple)
+            (left, right, internal_simple)
             (())
             ($($code)*)
-        }
-    }};
-    ($input:expr $(,)? => $($code:tt)*) => {{
-        let mut right = std::vec::Vec::new();
-        $crate::brain_flak! { $input, &mut right =>
-            $($code)*
         }
     }};
 }
