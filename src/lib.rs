@@ -14,6 +14,9 @@
 //! You can pass at most 2 and at least 1 mutable reference to vector for it's
 //! input. Followed by `=>` then the Brain-Flak code.
 #![warn(missing_docs)]
+#![warn(clippy::all)]
+#![deny(clippy::correctness)]
+#![forbid(unsafe_code)]
 // core brain flak macro, @() is the <> instead, as well as greedy ! ... to
 // indicate it still contains <...>
 #[doc(hidden)]
@@ -36,8 +39,9 @@ macro_rules! internal_simple_eval {
         let len = core::convert::TryInto::try_into(len);
         let len = core::result::Result::unwrap(len);
         // HACK: this is to infer len to have similar type as the element
-        Vec::push($stack[$active], len);
-        Vec::pop($stack[$active]);
+        if false {
+            Vec::push($stack[$active], len);
+        }
         let rest = $crate::internal_simple_eval! {
             ($stack, $active)
             ($($code)*)
@@ -54,6 +58,7 @@ macro_rules! internal_simple_eval {
         rest + popped
     }};
     (($stack:ident, $active:ident) (@()$($code:tt)*)) => {{
+        // #[allow(unused_assignments)]
         $active = 1 - $active;
         $crate::internal_simple_eval! {
             ($stack, $active)
@@ -116,7 +121,7 @@ macro_rules! internal_simple_eval {
             ($stack, $active, internal_simple_eval)
             (())
             ($($code)*)
-        };
+        }
     };
 }
 // same as above, but discards the return value as possible.
@@ -180,13 +185,13 @@ macro_rules! internal_simple {
                 $crate::internal_simple! {
                     ($stack, $active)
                     ($($first)+)
-                };
+                }
             }
         }
         $crate::internal_simple! {
             ($stack, $active)
             ($($code)*)
-        };
+        }
     }};
     (($stack:ident, $active:ident) (@($($first:tt)+)$($code:tt)*)) => {{
         $crate::internal_simple! {
@@ -198,13 +203,13 @@ macro_rules! internal_simple {
             ($($code)*)
         }
     }};
-    (($stack:ident, $active:ident) (!$($code:tt)*)) => {{
+    (($stack:ident, $active:ident) (!$($code:tt)*)) => {
         $crate::internal! {
             ($stack, $active, internal_simple)
             (())
             ($($code)*)
         }
-    }};
+    };
 }
 // another brain flak macro that deals with <...>
 // this internally replaces <...> with @(...) so it can be invoked with
@@ -319,6 +324,7 @@ macro_rules! internal {
 #[macro_export]
 macro_rules! brain_flak {
     ($left:expr, $right:expr $(,)? => $($code:tt)*) => {{
+        #![allow(unused_assignments)]
         use std::vec::Vec;
         let left: &mut Vec<_> = $left;
         let right: &mut Vec<_> = $right;
@@ -335,7 +341,7 @@ macro_rules! brain_flak {
         let mut right = std::vec::Vec::new();
         $crate::brain_flak! { $input, &mut right =>
             $($code)*
-        };
+        }
     }};
 }
 #[cfg(test)]
